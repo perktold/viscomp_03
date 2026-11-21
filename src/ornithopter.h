@@ -12,9 +12,14 @@ struct Wing {
 class Ornithopter {
 public:
     Ornithopter(const Mesh *cube, ShaderProgram *shader);
+
+    void updateTransform();
+
     void draw() const;
 
-    // ornithopter transform and animation state, only change this externally (this is for pitch/roll/yaw for the movement etc)
+    // ornithopter transform and animation state, only change this externally (this for the movement etc)
+    Vector3D position = {0.0f, 5.0f, 0.0f};
+    float yaw = 0.0f, pitch = 0.0f, roll = 0.0f; // rad
     Matrix4D transform = Matrix4D::identity();
     float wingOpenAngle = 0.0f, wingFlipAngle = 0.0f, wingFlapAngle = 0.0f;
 

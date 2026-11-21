@@ -56,7 +56,7 @@ struct {
 struct {
   bool mouseLeftButtonPressed = false;
   Vector2D mousePressStart;
-  bool keyPressed[4] = {false, false, false, false};
+  bool keyPressed[8] = {false, false, false, false, false, false, false, false};
 } sInput;
 
 // GLFW callback function for keyboard events.
@@ -95,6 +95,18 @@ void callbackKey(GLFWwindow *window, int key, int scancode, int action,
   }
   if (key == GLFW_KEY_D) {
     sInput.keyPressed[3] = (action == GLFW_PRESS || action == GLFW_REPEAT);
+  }
+  if (key == GLFW_KEY_Q) {
+    sInput.keyPressed[4] = (action == GLFW_PRESS || action == GLFW_REPEAT);
+  }
+  if (key == GLFW_KEY_E) {
+    sInput.keyPressed[5] = (action == GLFW_PRESS || action == GLFW_REPEAT);
+  }
+  if (key == GLFW_KEY_SPACE) {
+    sInput.keyPressed[6] = (action == GLFW_PRESS || action == GLFW_REPEAT);
+  }
+  if (key == GLFW_KEY_LEFT_SHIFT) {
+    sInput.keyPressed[7] = (action == GLFW_PRESS || action == GLFW_REPEAT);
   }
 }
 
@@ -155,19 +167,31 @@ void sceneInit(float width, float height) {
   sScene.shaderColor = shaderLoad("shader/default.vert", "shader/default.frag");
 }
 
-// Function to move and update objects in scene.
+// Function to move and update objects in scene. TODO: move this into ornithopter class?
 void sceneUpdate(float dt) {
-  if (sInput.keyPressed[0]) {
-    //W
-  } else if (sInput.keyPressed[1]) {
-    //S
-  }
+  Ornithopter &o = *sScene.ornithopter;
+  const float speed = 10.0f, turnSpeed = 1.5f;
+  const float maxTilt = static_cast<float>(to_radians(15.0f));
+  const float tiltRate = 5.0f;
 
-  if (sInput.keyPressed[2]) {
-    //A
-  } else if (sInput.keyPressed[3]) {
-    //D
-  }
+  // 1 means forward / right / counterclockwise / upwards, -1 means opposite
+  float fwd  = float(sInput.keyPressed[0]) - float(sInput.keyPressed[1]); // W/S
+  float side = float(sInput.keyPressed[3]) - float(sInput.keyPressed[2]); // D/A
+  float turn = float(sInput.keyPressed[4]) - float(sInput.keyPressed[5]); // Q/E
+  float vert = float(sInput.keyPressed[6]) - float(sInput.keyPressed[7]); // Space/Shift
+
+  // Movement relative to current heading.
+  o.yaw += turn * turnSpeed * dt;
+  Vector3D forward = {std::sin(o.yaw), 0.0f, std::cos(o.yaw)};
+  Vector3D right = {-std::cos(o.yaw), 0.0f, std::sin(o.yaw)};
+  o.position += (forward * fwd + right * side + Vector3D(0, vert, 0)) * (speed * dt);
+
+  // Ease tilt toward target: nose down when moving forward, lean into sideways movement.
+  float k = std::min(1.0f, tiltRate * dt);
+  o.pitch += (fwd * maxTilt - o.pitch) * k;
+  o.roll += (side * maxTilt - o.roll) * k;
+
+  o.updateTransform();
 }
 
 // Function to draw all objects in the scene.

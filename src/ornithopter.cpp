@@ -5,6 +5,11 @@ Ornithopter::Ornithopter(const Mesh *cube, ShaderProgram *shader)
     buildModel();
 }
 
+void Ornithopter::updateTransform() {
+    transform = Matrix4D::translation(position) * Matrix4D::rotationY(yaw) *
+                Matrix4D::rotationX(pitch) * Matrix4D::rotationZ(roll);
+}
+
 void Ornithopter::buildModel() {
     // cockpit
     bodyParts.push_back(
