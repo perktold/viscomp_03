@@ -7,6 +7,7 @@
 #include "mygl/shader.h"
 
 #include "ground.h"
+#include "ornithopter.h"
 
 // Helper functions you may need for the wing flapping animation.
 struct WingFlapAnimation {
@@ -41,16 +42,11 @@ struct {
   // Game objects.
   Ground ground;
 
+  // Ornithopter :)
+  Ornithopter *ornithopter;
+
   // Template objects, transformation matrices and animation properties.
   Mesh cubeMesh;
-  Mesh cylinderMesh;
-  Matrix4D cubeScalingMatrix;
-  Matrix4D cubeTranslationMatrix;
-  Matrix4D cubeTransformationMatrix;
-  Matrix4D cylinderScalingMatrix;
-  Matrix4D cylinderTranslationMatrix;
-  Matrix4D cylinderTransformationMatrix;
-  float cubeSpinRadPerSecond;
 
   // Shader.
   ShaderProgram shaderColor;
@@ -145,13 +141,9 @@ void sceneInit(float width, float height) {
   // Template objects.
   sScene.cubeMesh =
       meshCreate(cube::vertices, cube::indices, GL_STATIC_DRAW, GL_STATIC_DRAW);
-  sScene.cylinderMesh =
-      meshCreate(cylinder::vertexPos, cylinder::indices,
-                 {0.3f, 0.3f, 0.3f, 1.0f}, GL_STATIC_DRAW, GL_STATIC_DRAW);
 
-  sScene.cylinderScalingMatrix = Matrix4D::identity();
-  sScene.cylinderTranslationMatrix = Matrix4D::translation({-2.0f, 3.0f, 0.0f});
-  sScene.cylinderTransformationMatrix = Matrix4D::identity();
+  // init ornithopter
+  sScene.ornithopter = new Ornithopter(&sScene.cubeMesh, &sScene.shaderColor);
 
   // Initialize camera.
   sScene.camera = cameraCreate(width, height, to_radians(45.0f), 0.01f, 500.0f,
@@ -197,14 +189,7 @@ void sceneDraw() {
     glDrawElements(GL_TRIANGLES, sScene.ground.mesh.size_ibo, GL_UNSIGNED_INT,
                    nullptr);
 
-    // Draw the cylinder.
-    shaderUniform(sScene.shaderColor, "uModel",
-                  sScene.cylinderTranslationMatrix *
-                      sScene.cylinderTransformationMatrix *
-                      sScene.cylinderScalingMatrix);
-    glBindVertexArray(sScene.cylinderMesh.vao);
-    glDrawElements(GL_TRIANGLES, sScene.cylinderMesh.size_ibo, GL_UNSIGNED_INT,
-                   nullptr);
+    sScene.ornithopter->draw();
   }
   glCheckError();
 
