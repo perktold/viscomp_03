@@ -171,25 +171,33 @@ void sceneInit(float width, float height) {
 void sceneUpdate(float dt) {
   Ornithopter &o = *sScene.ornithopter;
   const float speed = 10.0f, turnSpeed = 1.5f;
-  const float maxTilt = static_cast<float>(to_radians(15.0f));
-  const float tiltRate = 5.0f;
+  const float maxTilt = to_radians(15.0f);
+  const float tiltRate = 5.0f; // how fast does the ornithopter reach max roll/pitch/yaw
+  const float accelRate = 7.0f; // how fast does the ornithopter reach max speed
 
   // 1 means forward / right / counterclockwise / upwards, -1 means opposite
-  float fwd  = float(sInput.keyPressed[0]) - float(sInput.keyPressed[1]); // W/S
-  float side = float(sInput.keyPressed[3]) - float(sInput.keyPressed[2]); // D/A
-  float turn = float(sInput.keyPressed[4]) - float(sInput.keyPressed[5]); // Q/E
-  float vert = float(sInput.keyPressed[6]) - float(sInput.keyPressed[7]); // Space/Shift
+  float fwdIn  = float(sInput.keyPressed[0]) - float(sInput.keyPressed[1]); // W/S
+  float sideIn = float(sInput.keyPressed[3]) - float(sInput.keyPressed[2]); // D/A
+  float turnIn = float(sInput.keyPressed[4]) - float(sInput.keyPressed[5]); // Q/E
+  float vertIn = float(sInput.keyPressed[6]) - float(sInput.keyPressed[7]); // Space/Shift
+
+  // ease velocities
+  float a = 1.0f - std::exp(-accelRate * dt);
+  o.vFwd  += (fwdIn  - o.vFwd)  * a;
+  o.vSide += (sideIn - o.vSide) * a;
+  o.vVert += (vertIn - o.vVert) * a;
+  o.vTurn += (turnIn - o.vTurn) * a;
 
   // Movement relative to current heading.
-  o.yaw += turn * turnSpeed * dt;
+  o.yaw += o.vTurn * turnSpeed * dt;
   Vector3D forward = {std::sin(o.yaw), 0.0f, std::cos(o.yaw)};
   Vector3D right = {-std::cos(o.yaw), 0.0f, std::sin(o.yaw)};
-  o.position += (forward * fwd + right * side + Vector3D(0, vert, 0)) * (speed * dt);
+  o.position += (forward * o.vFwd + right * o.vSide+ Vector3D(0, o.vVert, 0)) * (speed * dt);
 
   // Ease tilt toward target: nose down when moving forward, lean into sideways movement.
-  float k = std::min(1.0f, tiltRate * dt);
-  o.pitch += (fwd * maxTilt - o.pitch) * k;
-  o.roll += (side * maxTilt - o.roll) * k;
+  float k = 1.0f - std::exp(-tiltRate * dt);
+  o.pitch += (o.vFwd * maxTilt - o.pitch) * k;
+  o.roll += (o.vSide * maxTilt - o.roll) * k;
 
   o.updateTransform();
 }

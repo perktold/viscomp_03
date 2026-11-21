@@ -22,6 +22,7 @@ public:
     float yaw = 0.0f, pitch = 0.0f, roll = 0.0f; // rad
     Matrix4D transform = Matrix4D::identity();
     float wingOpenAngle = 0.0f, wingFlipAngle = 0.0f, wingFlapAngle = 0.0f;
+    float vFwd = 0.0, vSide = 0.0, vVert = 0.0, vTurn = 0.0;
 
 private:
     void buildModel();
