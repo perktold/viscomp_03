@@ -149,17 +149,9 @@ void sceneInit(float width, float height) {
       meshCreate(cylinder::vertexPos, cylinder::indices,
                  {0.3f, 0.3f, 0.3f, 1.0f}, GL_STATIC_DRAW, GL_STATIC_DRAW);
 
-  // Set up the transformation matrices for the template objects.
-  sScene.cubeScalingMatrix = Matrix4D::scale(2.0f, 2.0f, 2.0f);
-  sScene.cubeTranslationMatrix = Matrix4D::translation({2.0f, 3.0f, 0.0f});
-  sScene.cubeTransformationMatrix = Matrix4D::identity();
-
   sScene.cylinderScalingMatrix = Matrix4D::identity();
   sScene.cylinderTranslationMatrix = Matrix4D::translation({-2.0f, 3.0f, 0.0f});
   sScene.cylinderTransformationMatrix = Matrix4D::identity();
-
-  // Animation properties for the template objects.
-  sScene.cubeSpinRadPerSecond = M_PI / 2.0f;
 
   // Initialize camera.
   sScene.camera = cameraCreate(width, height, to_radians(45.0f), 0.01f, 500.0f,
@@ -173,30 +165,16 @@ void sceneInit(float width, float height) {
 
 // Function to move and update objects in scene.
 void sceneUpdate(float dt) {
-  // W and S rotate around the X axis.
-  int rotationDirX = 0;
   if (sInput.keyPressed[0]) {
-    rotationDirX = -1;
+    //W
   } else if (sInput.keyPressed[1]) {
-    rotationDirX = 1;
+    //S
   }
 
-  // A and D rotate around the Y axis.
-  int rotationDirY = 0;
   if (sInput.keyPressed[2]) {
-    rotationDirY = -1;
+    //A
   } else if (sInput.keyPressed[3]) {
-    rotationDirY = 1;
-  }
-
-  // Update the cube transformation matrices.
-  // They will be used in the sceneDraw() function and passed to the shader
-  // program.
-  if (rotationDirX != 0 || rotationDirY != 0) {
-    sScene.cubeTransformationMatrix =
-        Matrix4D::rotationY(rotationDirY * sScene.cubeSpinRadPerSecond * dt) *
-        Matrix4D::rotationX(rotationDirX * sScene.cubeSpinRadPerSecond * dt) *
-        sScene.cubeTransformationMatrix;
+    //D
   }
 }
 
@@ -217,16 +195,6 @@ void sceneDraw() {
     shaderUniform(sScene.shaderColor, "uModel", Matrix4D::identity());
     glBindVertexArray(sScene.ground.mesh.vao);
     glDrawElements(GL_TRIANGLES, sScene.ground.mesh.size_ibo, GL_UNSIGNED_INT,
-                   nullptr);
-
-    // Draw the cube. This requires to calculate the final model matrix from all
-    // transformations.
-    shaderUniform(sScene.shaderColor, "uModel",
-                  sScene.cubeTranslationMatrix *
-                      sScene.cubeTransformationMatrix *
-                      sScene.cubeScalingMatrix);
-    glBindVertexArray(sScene.cubeMesh.vao);
-    glDrawElements(GL_TRIANGLES, sScene.cubeMesh.size_ibo, GL_UNSIGNED_INT,
                    nullptr);
 
     // Draw the cylinder.
