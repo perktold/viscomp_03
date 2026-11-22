@@ -50,6 +50,7 @@ struct {
 
   // Shader.
   ShaderProgram shaderColor;
+  ShaderProgram shaderOrnithopter;
 } sScene;
 
 // Struct holding all state variables for input.
@@ -160,7 +161,8 @@ void sceneInit(float width, float height) {
       meshCreate(cube::vertices, cube::indices, GL_STATIC_DRAW, GL_STATIC_DRAW);
 
   // init ornithopter
-  sScene.ornithopter = new Ornithopter(&sScene.cubeMesh, &sScene.shaderColor);
+  sScene.shaderOrnithopter = shaderLoad("shader/gray.vert", "shader/gray.frag");
+  sScene.ornithopter = new Ornithopter(&sScene.cubeMesh, &sScene.shaderOrnithopter);
 
   // Initialize camera.
   sScene.camera = cameraCreate(width, height, to_radians(45.0f), 0.01f, 500.0f,
@@ -241,6 +243,9 @@ void sceneDraw() {
     glDrawElements(GL_TRIANGLES, sScene.ground.mesh.size_ibo, GL_UNSIGNED_INT,
                    nullptr);
 
+    glUseProgram(sScene.shaderOrnithopter.id);
+    shaderUniform(sScene.shaderOrnithopter, "uProj", cameraProjection(sScene.camera));
+    shaderUniform(sScene.shaderOrnithopter, "uView", cameraView(sScene.camera));
     sScene.ornithopter->draw();
   }
   glCheckError();
@@ -294,6 +299,7 @@ int main(int argc, char **argv) {
   }
 
   // Cleanup — delete OpenGL shader and buffers.
+  shaderDelete(sScene.shaderOrnithopter);
   shaderDelete(sScene.shaderColor);
   groundDelete(sScene.ground);
 
