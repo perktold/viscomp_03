@@ -36,7 +36,7 @@ struct WingFlapAnimation {
 struct {
   // Camera.
   Camera camera;
-  bool cameraFollowOrnithopter;
+  bool cameraFollowOrnithopter = false;
   float zoomSpeedMultiplier;
 
   // Game objects.
@@ -89,7 +89,6 @@ void callbackKey(GLFWwindow *window, int key, int scancode, int action,
   if (key == GLFW_KEY_S) {
     sInput.keyPressed[1] = (action == GLFW_PRESS || action == GLFW_REPEAT);
   }
-
   if (key == GLFW_KEY_A) {
     sInput.keyPressed[2] = (action == GLFW_PRESS || action == GLFW_REPEAT);
   }
@@ -108,11 +107,17 @@ void callbackKey(GLFWwindow *window, int key, int scancode, int action,
   if (key == GLFW_KEY_LEFT_SHIFT) {
     sInput.keyPressed[7] = (action == GLFW_PRESS || action == GLFW_REPEAT);
   }
+  if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+    sScene.cameraFollowOrnithopter = false;
+  }
+  if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+    sScene.cameraFollowOrnithopter = true;
+  }
 }
 
 // GLFW callback function for mouse position events.
 void callbackMousePos(GLFWwindow *window, double x, double y) {
-  if (sInput.mouseLeftButtonPressed) {
+  if (sInput.mouseLeftButtonPressed && !sScene.cameraFollowOrnithopter) {
     Vector2D diff = sInput.mousePressStart - Vector2D(x, y);
     cameraUpdateOrbit(sScene.camera, diff, 0.0f);
     sInput.mousePressStart = Vector2D(x, y);
@@ -200,6 +205,9 @@ void sceneUpdate(float dt) {
   o.roll += (o.vSide * maxTilt - o.roll) * k;
 
   o.updateTransform();
+  if (sScene.cameraFollowOrnithopter) {
+    sScene.camera.lookAt = o.position;
+  }
 }
 
 // Function to draw all objects in the scene.
@@ -279,6 +287,8 @@ int main(int argc, char **argv) {
 
   // Cleanup GLFW/GL context.
   windowDelete(window);
+
+  delete sScene.ornithopter;
 
   return EXIT_SUCCESS;
 }

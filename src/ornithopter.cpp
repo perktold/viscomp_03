@@ -6,7 +6,7 @@ Ornithopter::Ornithopter(const Mesh *cube, ShaderProgram *shader)
 }
 
 void Ornithopter::updateTransform() {
-    transform = Matrix4D::translation(position) * Matrix4D::rotationY(yaw) *
+    global_transform = Matrix4D::translation(position) * Matrix4D::rotationY(yaw) *
                 Matrix4D::rotationX(pitch) * Matrix4D::rotationZ(roll);
 }
 
@@ -18,7 +18,7 @@ void Ornithopter::buildModel() {
 
     //tail
     bodyParts.push_back(
-        Matrix4D::translation(Vector3D(0.0f, 0.0f, -5.4f))*
+        Matrix4D::translation(Vector3D(0.0f, 0.5f, -5.4f))*
         Matrix4D::scale(0.8f / 2, 0.6f / 2, 6.0f / 2)
         );
 
@@ -29,12 +29,54 @@ void Ornithopter::buildModel() {
         );
     bodyParts.push_back(
         Matrix4D::translation(Vector3D(0.0f, -1.5f, -0.4f))*
-        Matrix4D::scale(0.2f / 2, 0.2f / 2, 3.0f / 2));
+        Matrix4D::scale(1.4f / 2, 0.2f / 2, 3.0f / 2));
 
-    //wings left
-    bodyParts.push_back(
-        Matrix4D::translation(Vector3D(0.0f, 1.0f, -0.4f))*
+    //wings right:
+    wings.push_back(
+        Matrix4D::translation(Vector3D(-0.55f, 0.8f, -0.15f))*
         Matrix4D::rotationY(to_radians(16.0f)) *
+        Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f/2))*
+        Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2));
+
+    wings.push_back(
+        Matrix4D::translation(Vector3D(-0.4f, 0.8f, -1.0f))*
+        Matrix4D::rotationY(to_radians(16.0f)) *
+        Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f/2))*
+        Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2));
+
+    wings.push_back(
+        Matrix4D::translation(Vector3D(-0.55f, -0.15f, 0.0f))*
+        Matrix4D::rotationY(to_radians(16.0f)) *
+        Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f/2))*
+        Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2));
+
+    wings.push_back(
+        Matrix4D::translation(Vector3D(-0.4f, -0.15f, -0.9f))*
+        Matrix4D::rotationY(to_radians(16.0f)) *
+        Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f/2))*
+        Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2));
+
+    wings.push_back(
+        Matrix4D::translation(Vector3D(0.55f, 0.8f, -0.15f))*
+        Matrix4D::rotationY(to_radians(-16.0f)) *
+        Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f/2))*
+        Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2));
+
+    wings.push_back(
+        Matrix4D::translation(Vector3D(0.4f, 0.8f, -1.0f))*
+        Matrix4D::rotationY(to_radians(-16.0f)) *
+        Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f/2))*
+        Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2));
+
+    wings.push_back(
+        Matrix4D::translation(Vector3D(0.55f, -0.15f, 0.0f))*
+        Matrix4D::rotationY(to_radians(-16.0f)) *
+        Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f/2))*
+        Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2));
+
+    wings.push_back(
+        Matrix4D::translation(Vector3D(0.4f, -0.15f, -0.9f))*
+        Matrix4D::rotationY(to_radians(-16.0f)) *
         Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f/2))*
         Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2));
 }
@@ -47,9 +89,10 @@ void Ornithopter::drawCube(const Matrix4D &m) const {
 }
 
 void Ornithopter::draw() const {
-    for (const Matrix4D &p : bodyParts)
-        drawCube(transform * p);
-    /*for (const Wing &w : wings)
-        drawCube(transform * w.pivot * wingAnimation(w) * w.local);
-    */
+    for (const Matrix4D &p : bodyParts) {
+        drawCube(global_transform * p);
+    }
+    for (const Matrix4D &w : wings) {
+        drawCube(global_transform * w);
+    }
 }
