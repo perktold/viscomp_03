@@ -44,7 +44,7 @@ struct {
 
   // Ornithopter :)
   Ornithopter *ornithopter;
-
+  WingFlapAnimation sFlap;
   // Template objects, transformation matrices and animation properties.
   Mesh cubeMesh;
 
@@ -179,6 +179,18 @@ void sceneUpdate(float dt) {
   const float maxTilt = to_radians(15.0f);
   const float tiltRate = 5.0f; // how fast does the ornithopter reach max roll/pitch/yaw
   const float accelRate = 7.0f; // how fast does the ornithopter reach max speed
+
+  // Wing animation
+  const float openMax = to_radians(74.0f);
+  const float flipMax = to_radians(180.0f);
+  if (o.wingOpenAngle < openMax) {
+    o.wingOpenAngle = std::min(openMax, o.wingOpenAngle + float(to_radians(20.0f)) * dt);
+  } else if (o.wingFlipAngle < flipMax) {
+    o.wingFlipAngle = std::min(flipMax, o.wingFlipAngle + float(to_radians(160.0f)) * dt);
+  } else {
+    sScene.sFlap.t += dt;
+    o.wingFlapAngle = sScene.sFlap.angleZ();
+  }
 
   // 1 means forward / right / counterclockwise / upwards, -1 means opposite
   float fwdIn  = float(sInput.keyPressed[0]) - float(sInput.keyPressed[1]); // W/S

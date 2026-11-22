@@ -19,13 +19,20 @@ public:
     float wingOpenAngle = 0.0f, wingFlipAngle = 0.0f, wingFlapAngle = 0.0f;
     float vFwd = 0.0, vSide = 0.0, vVert = 0.0, vTurn = 0.0;
 
+    struct Wing {
+        Vector3D pivot; // pivot point for animation / rotation (this is where the wing touches the body)
+        float side;
+        Matrix4D mesh;
+    };
 private:
     void buildModel();
-    //Matrix4D wingAnimation(const Wing &w) const;
     void drawCube(const Matrix4D &m) const;
+
+    Matrix4D wingAnimation(const Wing &w) const;
+    void addWing(const Vector3D &pivot, float side);
 
     const Mesh *cube;
     ShaderProgram *shader;
     std::vector<Matrix4D> bodyParts; // cockpit, tail boom, strut, landing plate
-    std::vector<Matrix4D> wings;
+    std::vector<Wing> wings;
 };
