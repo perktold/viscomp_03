@@ -10,9 +10,6 @@ void Ornithopter::updateTransform() {
                 Matrix4D::rotationX(pitch) * Matrix4D::rotationZ(roll);
 }
 
-Wing leftWing;
-Wing rightWing;
-
 void Ornithopter::buildModel() {
     // cockpit
     bodyParts.push_back(
@@ -35,19 +32,13 @@ void Ornithopter::buildModel() {
         Matrix4D::scale(0.2f / 2, 0.2f / 2, 3.0f / 2));
 
     //wings left
-    leftWing.pivot =
-        Matrix4D::translation(Vector3D(0.0f, 1.0f, -0.4f)) *
-        Matrix4D::rotationY(to_radians(16.0f));
-
-    leftWing.local =
-        Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f / 2)) *
-        Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2);
+    bodyParts.push_back(
+        Matrix4D::translation(Vector3D(0.0f, 1.0f, -0.4f))*
+        Matrix4D::rotationY(to_radians(16.0f)) *
+        Matrix4D::translation(Vector3D(0.0f, 0.0f, -7.5f/2))*
+        Matrix4D::scale(0.3f / 2, 0.1f / 2, 7.5f / 2));
 }
 
-// Task 2
-Matrix4D Ornithopter::wingAnimation(const Wing &w) const {
-    return Matrix4D::identity();
-}
 
 void Ornithopter::drawCube(const Matrix4D &m) const {
     shaderUniform(*shader, "uModel", m);
@@ -58,6 +49,7 @@ void Ornithopter::drawCube(const Matrix4D &m) const {
 void Ornithopter::draw() const {
     for (const Matrix4D &p : bodyParts)
         drawCube(transform * p);
-    for (const Wing &w : wings)
+    /*for (const Wing &w : wings)
         drawCube(transform * w.pivot * wingAnimation(w) * w.local);
+    */
 }

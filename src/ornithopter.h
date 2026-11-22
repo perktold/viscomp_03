@@ -4,11 +4,6 @@
 #include "mygl/shader.h"
 #include <vector>
 
-struct Wing {
-    Matrix4D pivot; // hinge position/orientation on the body
-    Matrix4D local; // scale + offset of the wing cube relative to the pivot
-};
-
 class Ornithopter {
 public:
     Ornithopter(const Mesh *cube, ShaderProgram *shader);
@@ -26,11 +21,11 @@ public:
 
 private:
     void buildModel();
-    Matrix4D wingAnimation(const Wing &w) const;
+    //Matrix4D wingAnimation(const Wing &w) const;
     void drawCube(const Matrix4D &m) const;
 
     const Mesh *cube;
     ShaderProgram *shader;
     std::vector<Matrix4D> bodyParts; // cockpit, tail boom, strut, landing plate
-    std::vector<Wing> wings;         // 8 wings
+    //std::vector<Wing> wings;         // 8 wings
 };
